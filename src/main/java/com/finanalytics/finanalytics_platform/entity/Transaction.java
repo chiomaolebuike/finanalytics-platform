@@ -6,7 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "transactions")
+//@Table(name = "transactions")
 public class Transaction {
     private Long id;
 
@@ -22,6 +22,7 @@ public class Transaction {
 
     private PaymentMethod paymentMethod; // CARD, WALLET, EFT, INSTANT_EFT
     
+    private String merchantName;
     private String category; // e.g., "Groceries", "Utilities", "Entertainment"
 
     private LocalDateTime createdAt;
