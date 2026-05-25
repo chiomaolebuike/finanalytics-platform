@@ -1,0 +1,15 @@
+# docker-compose.yml — internal network
+networks:
+  finanalytics-internal:    # services communicate here — not exposed externally
+    driver: bridge
+  finanalytics-public:      # only api-gateway sits here
+    driver: bridge
+
+services:
+  api-gateway:
+    networks:
+      - finanalytics-public    # reachable from outside
+      - finanalytics-internal  # can route to internal services
+  transaction-service:
+    networks:
+      - finanalytics-internal  # NOT reachable from outside — only via gateway
