@@ -16,7 +16,6 @@ Currently focused on:
 Still in progress:
 
 * Database schema implementation
-* Full backend integration
 * Postman API testing
 * Docker orchestration
 * Redis integration
