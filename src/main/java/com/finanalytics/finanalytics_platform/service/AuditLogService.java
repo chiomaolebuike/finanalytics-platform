@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
- * Audit logging service.
- *
+ * 
+ * Operates behind the scenes to maintain an immutable record of all system events and security checks, providing a clear paper trail for compliance and risk reporting.
  * PCI DSS Req 10: All authentication, transaction, and admin events must be logged.
  * Log format uses key=value pairs for easy ingestion by Splunk / ELK / CloudWatch.
  *

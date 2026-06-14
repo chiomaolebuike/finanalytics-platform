@@ -7,6 +7,7 @@ import com.finanalytics.finanalytics_platform.repository.TransactionRepository;
 import com.finanalytics.finanalytics_platform.repository.UserBehaviourProfileRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * Maintains a rolling 30-day statistical fingerprint per user.
+ * Maintains a rolling 30-day statistical fingerprint per user to flag anomalies pr high-risk actions in real time.
  * Called asynchronously from TransactionService after each completed transaction.
  * Feeds the fraud engine's Rule 4 (unknown device) and Rule 6 (amount anomaly).
  */
@@ -30,6 +31,7 @@ public class BehaviourProfileService {
     private final UserBehaviourProfileRepository profileRepo;
     private final ObjectMapper                   objectMapper;
 
+    @Async
     @Transactional
     public void recalculate(Long userId) {
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);

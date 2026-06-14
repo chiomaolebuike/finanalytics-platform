@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+// Core entity that captures the identity of a customer and their risk profile. 
+// Used for authentication, authorisation, and as the basis for all user-centric analytics.
 @Entity
 @Table(name = "users", indexes = {
         @Index(name = "idx_user_email", columnList = "email", unique = true)

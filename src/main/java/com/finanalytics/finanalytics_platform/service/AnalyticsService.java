@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// Ensures that a comprehensive suite of analytics is available to users and admins, covering spending patterns, risk profiles, and fraud trends.
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

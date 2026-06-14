@@ -1,0 +1,9 @@
+spring:
+  jpa:
+    open-in-view: false
+  cache:
+    type: redis
+jwt:
+  secret: "ReplaceWithYour256BitSecretKeyForHmacSha256!!!!!"
+  access-expiry: 900000
+  refresh-expiry: 604800000

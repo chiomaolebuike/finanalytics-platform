@@ -10,6 +10,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// Logs the actual financial events or movements of money, which serve as the raw data needed to look for suspicious patterns. 
+// Each transaction captures comprehensive metadata to support complex fraud rules.
 @Entity
 @Table(name = "transactions", indexes = {
         @Index(name = "idx_tx_sender_id",   columnList = "sender_id"),
@@ -82,7 +84,6 @@ public class Transaction {
     @Column(name = "merchant_category", length = 100)
     private String merchantCategory;
 
-    // ── Fraud fields ──────────────────────────────────────────────
     // Risk score 0-100 from fraud engine
     @Column(name = "risk_score")
     private Integer riskScore;
@@ -108,7 +109,7 @@ public class Transaction {
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
 
-    // ── Enums ─────────────────────────────────────────────────────
+    // Additional fields can be added as needed to support more complex rules, e.g. card BIN, wallet provider, etc.
 
     public enum TransactionStatus {
         PENDING, COMPLETED, FAILED, BLOCKED, REFUNDED

@@ -18,13 +18,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * FraudAnalysisService — Rule-based fraud scoring engine.
- *
+ * FraudAnalysisService acts as a rule-based fraud scoring engine.
+ * 
  * 7 rules, each contributing a weighted score. Total is capped at 100.
  * Score >= 60 → flagged. Score >= 80 → blocked immediately.
- *
  * Rule weights approximate heuristics used by major SA banks (Capitec, FNB, Absa).
- */
+*/
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -41,10 +40,7 @@ public class FraudAnalysisService {
     private final TransactionRepository          txRepo;
     private final UserBehaviourProfileRepository profileRepo;
 
-    // ──────────────────────────────────────────────────────────────
-    //  MAIN ENTRY POINT
-    // ──────────────────────────────────────────────────────────────
-
+    // Main Entry Point- Evaluates a transaction against all rules and returns a comprehensive report
     public FraudEvaluation evaluate(Transaction tx) {
         List<RuleResult> results = new ArrayList<>();
 
@@ -82,7 +78,7 @@ public class FraudAnalysisService {
     //  INDIVIDUAL RULES
     // ──────────────────────────────────────────────────────────────
 
-    /** Rule 1 — High-value transaction (max +30) */
+    //Rule 1 — High-value transaction (max +30) 
     private RuleResult ruleHighValue(Transaction tx) {
         if (tx.getAmount().compareTo(HIGH_VALUE_THRESHOLD) > 0) {
             int score = tx.getAmount().compareTo(new BigDecimal("50000")) > 0 ? 30 : 20;
@@ -92,10 +88,10 @@ public class FraudAnalysisService {
         return RuleResult.clean("HIGH_VALUE_TRANSACTION");
     }
 
-    /** Rule 2 — Velocity (max +30): 5+ transactions in 10 minutes = card testing */
+    //Rule 2 — Velocity (max +30): 5+ transactions in 10 minutes = card testing 
     private RuleResult ruleVelocity(Transaction tx) {
         LocalDateTime windowStart = LocalDateTime.now().minusMinutes(VELOCITY_WINDOW_MINUTES);
-        long recentCount = txRepo.(
+        long recentCount = txRepo.countBySenderIdAndCreatedAtAfter(
                 tx.getSender().getId(), windowStart);
 
         if (recentCount >= VELOCITY_TX_LIMIT) {
@@ -106,7 +102,7 @@ public class FraudAnalysisService {
         return RuleResult.clean("VELOCITY_EXCEEDED");
     }
 
-    /** Rule 3 — Impossible travel (+25): Haversine > 500km in under 1 hour */
+    //Rule 3 — Impossible travel (+25): Haversine > 500km in under 1 hour 
     private RuleResult ruleGeoAnomaly(Transaction tx) {
         if (tx.getLatitude() == null || tx.getLongitude() == null) {
             return RuleResult.clean("GEO_ANOMALY");
@@ -134,7 +130,7 @@ public class FraudAnalysisService {
         return RuleResult.clean("GEO_ANOMALY");
     }
 
-    /** Rule 4 — Unknown device (+15): device not in user's known profile */
+    //Rule 4 — Unknown device (+15): device not in user's known profile 
     private RuleResult ruleUnknownDevice(Transaction tx) {
         if (tx.getDeviceId() == null) return RuleResult.clean("UNKNOWN_DEVICE");
 
@@ -149,7 +145,7 @@ public class FraudAnalysisService {
         return RuleResult.clean("UNKNOWN_DEVICE");
     }
 
-    /** Rule 5 — Unusual hour (+10): 03:00-05:00 correlates with automated fraud scripts */
+    //Rule 5 — Unusual hour (+10): 03:00-05:00 correlates with automated fraud scripts 
     private RuleResult ruleUnusualHour(Transaction tx) {
         int hour = LocalDateTime.now().getHour();
         if (hour >= 3 && hour < 5) {
@@ -159,7 +155,7 @@ public class FraudAnalysisService {
         return RuleResult.clean("UNUSUAL_HOUR");
     }
 
-    /** Rule 6 — Amount anomaly (+15-20): z-score > 3 standard deviations from user mean */
+    //Rule 6 — Amount anomaly (+15-20): z-score > 3 standard deviations from user mean 
     private RuleResult ruleAmountAnomaly(Transaction tx) {
         Optional<UserBehaviourProfile> profile = profileRepo.findById(tx.getSender().getId());
         if (profile.isPresent()) {
@@ -184,7 +180,7 @@ public class FraudAnalysisService {
         return RuleResult.clean("AMOUNT_ANOMALY");
     }
 
-    /** Rule 7 — New receiver (+10): account created within 7 days = mule account indicator */
+    //Rule 7 — New receiver (+10): account created within 7 days = mule account indicator
     private RuleResult ruleNewReceiver(Transaction tx) {
         if (tx.getReceiver().getCreatedAt() != null
                 && tx.getReceiver().getCreatedAt().isAfter(LocalDateTime.now().minusDays(7))) {
@@ -194,10 +190,7 @@ public class FraudAnalysisService {
         return RuleResult.clean("NEW_RECEIVER_ACCOUNT");
     }
 
-    // ──────────────────────────────────────────────────────────────
-    //  HELPERS
-    // ──────────────────────────────────────────────────────────────
-
+    // Helpers
     private Action determineAction(int score) {
         if (score >= BLOCK_THRESHOLD) return Action.BLOCK;
         if (score >= FLAG_THRESHOLD)  return Action.REVIEW;
@@ -205,7 +198,7 @@ public class FraudAnalysisService {
         return Action.ALLOW;
     }
 
-    /** Haversine formula: great-circle distance in kilometres between two coordinates */
+    // Haversine formula: great-circle distance in kilometres between two coordinates
     private double haversineKm(double lat1, double lon1, double lat2, double lon2) {
         final double R = 6371.0;
         double dLat = Math.toRadians(lat2 - lat1);
@@ -216,10 +209,7 @@ public class FraudAnalysisService {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // ──────────────────────────────────────────────────────────────
-    //  VALUE OBJECTS
-    // ──────────────────────────────────────────────────────────────
-
+    // Fraud evaluation result returned to caller with detailed breakdown of which rules were triggered and why, to support explainability in the UI and for audit logs.
     public record FraudEvaluation(
             int              score,
             boolean          flagged,

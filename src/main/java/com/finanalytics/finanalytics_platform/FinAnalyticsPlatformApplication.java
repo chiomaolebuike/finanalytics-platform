@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+// Processed at application start up before any bean is created
+// Should not be placed into a subpackage as it will cause component scan to miss sibling packages
+
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableCaching

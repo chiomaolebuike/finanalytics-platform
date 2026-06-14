@@ -12,6 +12,8 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// Represents a product in the e-commerce platform.
+// Used for inventory management, order processing, and sales analytics that users interact with. 
 @Entity
 @Table(name = "products")
 @EntityListeners(AuditingEntityListener.class)
